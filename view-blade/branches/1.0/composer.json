@@ -1,0 +1,53 @@
+{
+  "name": "pollen-solutions/view-blade",
+  "description": "Pollen View Blade Component - Pollen view component Blade integration.",
+  "homepage": "https://www.presstify.com/pollen-solutions/view-blade/",
+  "keywords": [
+    "pollen-solutions",
+    "component",
+    "view",
+    "blade"
+  ],
+  "time": "2021-06-24",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jordy Manner",
+      "email": "jordy@presstify.com"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://composer.presstify.com/pollen-solutions/"
+    }
+  ],
+  "require": {
+    "php": "^7.4 || ^8.0",
+    "illuminate/view": "^8.47",
+    "pollen-solutions/view": "^1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Pollen\\ViewBlade\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Pollen\\ViewBlade\\": "tests"
+    }
+  },
+  "suggest": {
+    "pollen-solutions/container" : "Pollen Container Component - PSR-11 ready Dependencies Injection Container."
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true
+  }
+}
