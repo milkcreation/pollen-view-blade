@@ -41,8 +41,22 @@ class BladeCompiler extends BaseBladeCompiler
      *
      * @return bool
      */
-    public function hasCacheDir(): bool
+    public function hasCachePath(): bool
     {
         return !is_null($this->cachePath);
+    }
+
+    /**
+     * Set cache directory.
+     *
+     * @param string|null $cachePath
+     *
+     * @return static
+     */
+    public function setCachePath(?string $cachePath = null): self
+    {
+         $this->cachePath = $cachePath;
+
+        return $this;
     }
 }
