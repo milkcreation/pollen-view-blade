@@ -37,7 +37,7 @@ class ViewBlade implements ViewBladeInterface
     public function boot(): void
     {
         if (!$this->isBooted()) {
-            $this->viewManager()->registerViewEngine('blade', BladeViewEngine::class);
+            $this->viewManager()->registerEngine('blade', BladeViewEngine::class);
 
             $this->setBooted();
         }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pollen\ViewBlade;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\View\Engines\CompilerEngine as BaseCompilerEngine;
 
 class CompilerEngine extends BaseCompilerEngine
@@ -15,10 +16,12 @@ class CompilerEngine extends BaseCompilerEngine
 
     /**
      * @inheritDoc
+     *
+     * @throws FileNotFoundException
      */
     public function get($path, array $data = []): string
     {
-        if (!$this->compiler->hasCacheDir()) {
+        if (!$this->compiler->hasCachePath()) {
             $contents =  $this->compiler->getCompiledContents($path);
 
             ob_get_level();

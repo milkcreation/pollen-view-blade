@@ -14,6 +14,7 @@ use Pollen\Support\Proxy\ContainerProxy;
 use Pollen\View\AbstractViewEngine;
 use Pollen\View\Exception\MustHaveTemplateDirException;
 use Pollen\View\ViewEngineInterface;
+use Pollen\View\ViewExtensionInterface;
 
 /**
  * @mixin ViewFactory
@@ -22,15 +23,38 @@ class BladeViewEngine extends AbstractViewEngine
 {
     use ContainerProxy;
 
+    protected string $fileExtension = 'blade.php';
+
     protected ?string $cacheDir = null;
 
     protected ?string $directory = null;
 
     protected ?string $overrideDir = null;
 
+    protected ?array $shared = [];
+
+    protected ?BladeCompiler $blade = null;
+
+    protected ?EngineResolver $engineResolver = null;
+
+    protected ?Filesystem $filesystem = null;
+
     private ?ViewFactory $viewFactory = null;
 
+    public function __construct() {
+        $this->filesystem = new Filesystem();
+
+        $this->blade = new BladeCompiler($this->filesystem);
+
+        $this->engineResolver = new EngineResolver();
+        $this->engineResolver->register('blade', function () {
+            return new CompilerEngine($this->blade, $this->filesystem);
+        });
+    }
+
     /**
+     * Call View Factory delegate method.
+     *
      * @param string $method
      * @param array $parameters
      *
@@ -44,8 +68,14 @@ class BladeViewEngine extends AbstractViewEngine
     /**
      * @inheritDoc
      */
-    public function addFunction(string $name, callable $function): ViewEngineInterface
+    public function addExtension(string $name, $extension): ViewEngineInterface
     {
+        if ($extension instanceof ViewExtensionInterface) {
+            $extension->register($this);
+        } elseif (is_callable($extension)) {
+            $this->blade->directive($name, $extension);
+        }
+
         return $this;
     }
 
@@ -70,8 +100,7 @@ class BladeViewEngine extends AbstractViewEngine
      */
     public function setCacheDir(?string $cacheDir = null): ViewEngineInterface
     {
-        $this->cacheDir = $cacheDir;
-        $this->viewFactory = null;
+        $this->blade->setCachePath($cacheDir);
 
         return $this;
     }
@@ -82,6 +111,18 @@ class BladeViewEngine extends AbstractViewEngine
     public function setDirectory(string $directory): ViewEngineInterface
     {
         $this->directory = $directory;
+        $this->viewFactory = null;
+
+        return $this;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function setFileExtension(string $fileExtension): ViewEngineInterface
+    {
+        $this->fileExtension = $fileExtension;
         $this->viewFactory = null;
 
         return $this;
@@ -103,9 +144,18 @@ class BladeViewEngine extends AbstractViewEngine
      */
     public function share($key, $value = null): ViewEngineInterface
     {
-        $this->viewFactory()->share($key, $value);
+        $keys = is_array($key) ? $key : [$key => $value];
+        foreach($keys as $k => $v) {
+            $this->shared[$k] = $v;
+        }
+        $this->viewFactory = null;
 
         return $this;
+    }
+
+    public function blade(): BladeCompiler
+    {
+        return $this->blade;
     }
 
     /**
@@ -113,7 +163,7 @@ class BladeViewEngine extends AbstractViewEngine
      *
      * @return ViewFactoryContract
      */
-    protected function viewFactory(): ViewFactoryContract
+    public function viewFactory(): ViewFactoryContract
     {
         if ($this->viewFactory === null) {
             if ($this->directory === null) {
@@ -126,18 +176,11 @@ class BladeViewEngine extends AbstractViewEngine
             }
             $paths[] = $this->directory;
 
-            $filesystem = new Filesystem();
+            $fileViewFinder = new FileViewFinder($this->filesystem, $paths, [$this->fileExtension]);
 
-            $engineResolver = new EngineResolver();
+            $this->viewFactory = new ViewFactory($this->engineResolver, $fileViewFinder, new Dispatcher());
 
-            $engineResolver->register('blade', function () use ($filesystem) {
-                $bladeCompiler = new BladeCompiler($filesystem, $this->cacheDir);
-                return new CompilerEngine($bladeCompiler, $filesystem);
-            });
-            $fileViewFinder = new FileViewFinder($filesystem, $paths);
-            $eventDispatcher = new Dispatcher();
-
-            $this->viewFactory = new ViewFactory($engineResolver, $fileViewFinder, $eventDispatcher);
+            $this->viewFactory->share($this->shared);
         }
 
         return $this->viewFactory;
