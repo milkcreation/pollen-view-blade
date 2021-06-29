@@ -11,7 +11,7 @@ use Illuminate\View\Engines\EngineResolver;
 use Illuminate\View\Factory as ViewFactory;
 use Illuminate\View\FileViewFinder;
 use Pollen\Support\Proxy\ContainerProxy;
-use Pollen\View\AbstractViewEngine;
+use Pollen\View\ViewEngine;
 use Pollen\View\Exception\MustHaveTemplateDirException;
 use Pollen\View\ViewEngineInterface;
 use Pollen\View\ViewExtensionInterface;
@@ -19,7 +19,7 @@ use Pollen\View\ViewExtensionInterface;
 /**
  * @mixin ViewFactory
  */
-class BladeViewEngine extends AbstractViewEngine
+class BladeViewEngine extends ViewEngine
 {
     use ContainerProxy;
 
@@ -70,6 +70,10 @@ class BladeViewEngine extends AbstractViewEngine
      */
     public function addExtension(string $name, $extension): ViewEngineInterface
     {
+        if ($extension === null) {
+            $extension = $this->viewManager()->getExtension($name);
+        }
+
         if ($extension instanceof ViewExtensionInterface) {
             $extension->register($this);
         } elseif (is_callable($extension)) {
@@ -159,7 +163,7 @@ class BladeViewEngine extends AbstractViewEngine
     }
 
     /**
-     * Instantiate|Get Illuminate View Factory.
+     * Create|Get Illuminate View Factory instance.
      *
      * @return ViewFactoryContract
      */
