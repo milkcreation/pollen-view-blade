@@ -9,6 +9,10 @@ use Illuminate\View\Compilers\BladeCompiler as BaseBladeCompiler;
 
 class BladeCompiler extends BaseBladeCompiler
 {
+    /**
+     * @param Filesystem $files
+     * @param string|null $cachePath
+     */
     public function __construct(Filesystem $files, ?string $cachePath = null)
     {
         if ($cachePath !== null) {
