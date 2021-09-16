@@ -1,25 +1,19 @@
 {
   "name": "pollen-solutions/view-blade",
   "description": "Pollen View Blade Component - Pollen view component Blade integration.",
-  "homepage": "https://www.presstify.com/pollen-solutions/view-blade/",
+  "homepage": "https://github.com/milkcreation/pollen-view-blade.git",
   "keywords": [
     "pollen-solutions",
     "component",
     "view",
     "blade"
   ],
-  "time": "2021-06-29",
+  "time": "2021-09-16",
   "license": "MIT",
   "authors": [
     {
       "name": "Jordy Manner",
       "email": "jordy@presstify.com"
-    }
-  ],
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://composer.presstify.com/pollen-solutions/"
     }
   ],
   "require": {
